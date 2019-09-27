@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "128716084714",
+    "firebase_url": "https://testfinder-5bdda.firebaseio.com",
+    "project_id": "testfinder-5bdda",
+    "storage_bucket": "testfinder-5bdda.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128716084714:android:7834334f07c0effd97ce93",
+        "android_client_info": {
+          "package_name": "com.ranolf.findall"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "128716084714-ipbi6k9l8qm7c92b3pgchvqnd5als2v1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAR-M8FE67ygYO5dCqzhFCeo2QqWT-5dzg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "128716084714-ipbi6k9l8qm7c92b3pgchvqnd5als2v1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
