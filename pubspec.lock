@@ -92,13 +92,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
-  dropdownfield:
+  esys_flutter_share:
     dependency: "direct main"
     description:
-      name: dropdownfield
+      name: esys_flutter_share
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.2"
   fab_circular_menu:
     dependency: "direct main"
     description:

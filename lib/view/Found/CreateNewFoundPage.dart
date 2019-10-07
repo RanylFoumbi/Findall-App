@@ -23,10 +23,11 @@ class CreateNewFoundState extends State<CreateNewFound>{
 
   LocalStorage storage = LocalStorage('userphoneNumber');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  var objectNameController = TextEditingController();
-  var otherFieldController = TextEditingController();
-  var townController = TextEditingController();
-  var quaterController = TextEditingController();
+//  var objectNameController = TextEditingController();
+  var otherObjectController = TextEditingController();
+  var otherTownController = TextEditingController();
+//  var townController = TextEditingController();
+  var quarterController = TextEditingController();
   var descriptionController = TextEditingController();
   var phoneController = TextEditingController();
   var nameController = TextEditingController();
@@ -34,7 +35,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
   bool _isLoading = false;
   List imageList = [];
   List urlList = [];
-  String objetName;
+  String objectName;
   String townName;
   var time = DateTime.now().toUtc();
   var _image;
@@ -134,15 +135,15 @@ class CreateNewFoundState extends State<CreateNewFound>{
     var url;
     var uuid = new Uuid();
     var id = uuid.v4();
-      final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child("founderImages/${id.toString()}.jpg");
-      final StorageUploadTask task = firebaseStorageRef.putFile(image);
-      var dowurl = await (await task.onComplete).ref.getDownloadURL();
-      url = dowurl.toString();
+    final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child("founderImages/${id.toString()}.jpg");
+    final StorageUploadTask task = firebaseStorageRef.putFile(image);
+    var dowurl = await (await task.onComplete).ref.getDownloadURL();
+    url = dowurl.toString();
     return url;
   }
 
 
-   getImage() async {
+  getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
@@ -237,7 +238,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
     }
     else{
       for(var i=0; i<imageList.length; i++){
-        imageList[i]==null
+        imageList==null
             ?
         rowImage
             :
@@ -258,18 +259,18 @@ class CreateNewFoundState extends State<CreateNewFound>{
   void validateSaveAndPublish(_formKey,context,objectName,town,quarter,description,founderName,founderPhone,founderImage){
 
     if (_formKey.currentState.validate()) {
-      imageList.isEmpty
+      imageList == null
           ?
-            Toast.show("veuillez piquer des images et réessayer.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM)
+      Toast.show("veuillez piquer des images et réessayer.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM)
           :
-          _formKey.currentState.save();
-          setState(() {
-            _isLoading = true;
-          });
+      _formKey.currentState.save();
+      setState(() {
+        _isLoading = true;
+      });
 
-          uploadImage().then((urlList) {
-            publishFound(context, objectName, town, quarter, description, urlList,founderName,founderPhone,founderImage);
-          });
+      uploadImage().then((urlList) {
+        publishFound(context, objectName, town, quarter, description, urlList,founderName,founderPhone,founderImage);
+      });
 
     }
     else{
@@ -280,6 +281,8 @@ class CreateNewFoundState extends State<CreateNewFound>{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
 
     final topBar = new AppBar(
       backgroundColor: Colors.white,
@@ -297,48 +300,100 @@ class CreateNewFoundState extends State<CreateNewFound>{
           }
       ),
       title: SizedBox(
-          height: 40.0 , child: Image.asset('assets/images/icon_findall.png', width: 10,height: 15),width: 60,
+        height: 40.0 , child: Image.asset('assets/images/icon_findall.png', width: 10,height: 15),width: 60,
       ),
     );
 
-
-
-    final objectNames =  new ListTile(
-      title: const Text('Object name'),
-      contentPadding: EdgeInsets.all(2),
-      trailing: new DropdownButton<String>(
-          iconSize: 40,
-         style: TextStyle(fontWeight: FontWeight.w900,color: Colors.black),
-          hint:  objetName == null ?
-                  Text(objetName = "Carte national d'identité")
-                :
-                 Text(objetName),
-          onChanged: (String changedValue) {
-            objetName = changedValue;
-            setState(() {
-              objetName;
-            });
-          },
-          value: objetName,
-          items: <String>["Carte national d'identité",'Mobile phone', 'Passe port', 'Relevé de note','Autre.....']
-              .map((String value) {
-            return new DropdownMenuItem<String>(
-              value: value,
-              child: new Text(value),
-            );
-          }).toList()),
+    final objectTitle =  new Container(
+          width: width/1.2,
+          padding: EdgeInsets.only(left: 7.0,right: 8.0),
+          child: Text('Which object have you found? Please choose "other..." if no choice.',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400
+            )
+          ),
     );
 
-    final town = new ListTile(
-      title: const Text('Town'),
-      contentPadding: EdgeInsets.all(2),
-      trailing: new DropdownButton<String>(
-        iconSize: 40,
-          style: TextStyle(fontWeight: FontWeight.w900,color: Colors.black),
-          hint:  townName == null ?
-                Text(townName = "Yaoundé")
-              :
-                Text(townName),
+    final objectNames =  new Container(
+        width: width/1.2,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: Color(0xffdcdcdc))),
+        padding: EdgeInsets.only(left: 25.0, right: 7.0),
+        child: DropdownButtonHideUnderline(
+          child: new DropdownButton<String>(
+              iconEnabledColor: Color(0xffdcdcdc),
+              iconSize: 40,
+              style: TextStyle(fontWeight: FontWeight.w700,color: Colors.black),
+              hint:  objectName == null ?
+              Text(objectName = "Carte national d'identité")
+                  :
+              Text(objectName),
+              onChanged: (String changedValue) {
+                objectName = changedValue;
+                setState(() {
+                  objectName;
+                });
+              },
+              value: objectName,
+              items: <String>[ "Carte national d'identité",'Mobile phone', 'Passe port', 'Dilplômes','Relevé de note','Other...' ]
+                  .map((String value) {
+                return new DropdownMenuItem<String>(
+                  value: value,
+                  child: new Text(value),
+                );
+              }).toList()),
+        )
+    );
+
+
+    final otherObject = TextFormField(
+      controller: otherObjectController,
+      keyboardType: TextInputType.text,
+      autofocus: false,
+      decoration: InputDecoration(
+        hintText: 'other type of object',
+        hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
+        prefixIcon: Icon(
+            Icons.devices_other,
+            color: Color(0xffdcd3d3)
+        ),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0)
+        ),
+        enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+                color: Color(0xffdcdcdc)
+            ),
+            borderRadius: BorderRadius.circular(10.0)
+        ),
+      ),
+    );
+
+    final townTitle =  new Container(
+      width: width/1.2,
+      padding: EdgeInsets.only(left: 7.0,right: 8.0),
+      child: Text('Where? Please choose "other..." if no choice.',
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400
+          )
+      ),
+    );
+
+    final town = new Container(
+      width: width/1.2,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: Color(0xffdcdcdc))),
+      padding: EdgeInsets.only(left: 25.0, right: 7.0),
+      child: DropdownButtonHideUnderline(
+          child: new DropdownButton<String>(
+            iconEnabledColor: Color(0xffdcdcdc),
+            iconSize: 40,
+            style: TextStyle(fontWeight: FontWeight.w700,color: Colors.black),
+            hint:  townName == null ?
+            Text(townName = "Yaoundé")
+                :
+            Text(townName),
           onChanged: (String changedValue) {
             townName = changedValue;
             setState(() {
@@ -346,19 +401,38 @@ class CreateNewFoundState extends State<CreateNewFound>{
             });
           },
           value: townName,
-          items: <String>["Yaoundé", 'Douala', 'Bertoua','Bamenda', 'Buéa', 'Bafoussam','Ngaoundéré', 'Maroua', 'Garoua','Ebolowa']
+          items: <String>["Yaoundé", 'Douala', 'Bertoua','Bamenda', 'Buéa', 'Bafoussam','Ngaoundéré', 'Maroua', 'Garoua','Ebolowa','Other...']
               .map((String value) {
             return new DropdownMenuItem<String>(
               value: value,
               child: new Text(value),
             );
           }).toList()),
+      )
     );
 
+    final otherTown = TextFormField(
+      controller: otherTownController,
+      keyboardType: TextInputType.text,
+      autofocus: false,
+      decoration: InputDecoration(
+        hintText: 'Other town',
+        hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
+        prefixIcon: Icon(
+            Icons.devices_other,
+            color: Color(0xffdcd3d3)
+        ),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+        enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Color(0xffdcdcdc)),
+            borderRadius: BorderRadius.circular(10.0)
+        ),
+      ),
+    );
 
-
-    final quater = TextFormField(
-      controller: quaterController,
+    final quarter = TextFormField(
+      controller: quarterController,
       keyboardType: TextInputType.text,
       autofocus: false,
       validator: (String value){
@@ -369,7 +443,8 @@ class CreateNewFoundState extends State<CreateNewFound>{
         }
       },
       decoration: InputDecoration(
-        hintText: 'Quater',
+        hintText: 'In which quarter?',
+        hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.home),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -391,6 +466,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       },
       decoration: InputDecoration(
         hintText: 'enter a small description...',
+        hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         alignLabelWithHint: true,
         contentPadding: EdgeInsets.only(top: 10,right: 3, left: 10, bottom: 2),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -402,14 +478,14 @@ class CreateNewFoundState extends State<CreateNewFound>{
         children: <Widget>[
           SizedBox(height: 110, width: 0),
           _isLoading ?
-              Text("butoi",style: TextStyle(color: Colors.white))
-            :
-              imageList.length < 4 ?
-              IconButton(icon: Icon(Icons.add_circle_outline, color: Colors.pink,size: 30), onPressed: (){
-                Dialog(context);
-              })
-                  :
-              Text("butoi",style: TextStyle(color: Colors.white)),
+          Text("butoi",style: TextStyle(color: Colors.white))
+              :
+          imageList.length < 4 ?
+          IconButton(icon: Icon(Icons.add_circle_outline, color: Colors.pink,size: 30), onPressed: (){
+            Dialog(context);
+          })
+              :
+          Text("butoi",style: TextStyle(color: Colors.white)),
 
           displayImage(),
         ],
@@ -418,30 +494,32 @@ class CreateNewFoundState extends State<CreateNewFound>{
     );
 
     final founderName = new TextFormField(
-        keyboardType: TextInputType.text,
-        autofocus: false,
-        controller: nameController,
-        decoration: InputDecoration(
-          hintText: 'Founder name',
-          prefixIcon: Icon(Icons.person),
-          contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
-        ),
-        validator: (String value){
-          if(value.isEmpty){
-            return "This field must not be empty";
-          }else{
-            return null;
-          }
-        },
-     );
+      keyboardType: TextInputType.text,
+      autofocus: false,
+      controller: nameController,
+      decoration: InputDecoration(
+        hintText: 'Your name',
+        hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
+        prefixIcon: Icon(Icons.person),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+      ),
+      validator: (String value){
+        if(value.isEmpty){
+          return "This field must not be empty";
+        }else{
+          return null;
+        }
+      },
+    );
 
     final founderphone = new TextFormField(
       keyboardType: TextInputType.phone,
       autofocus: false,
       controller: phoneController,
       decoration: InputDecoration(
-        hintText: 'Founder phone',
+        hintText: 'Your phone',
+        hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.phone),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -458,72 +536,106 @@ class CreateNewFoundState extends State<CreateNewFound>{
     final founderImge = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-              Text('Founder image'),
-              Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  ClipRRect(
-                    borderRadius: new BorderRadius.circular(50.0),
-                    child: _image == null
-                        ?
-                    ClipRRect(borderRadius: new BorderRadius.circular(50),clipBehavior: Clip.antiAlias,child:  SpinKitRipple(color: Colors.pink,size: 80),)
-                        :
-                    _isLoadingImg
-                                ?
-                                SpinKitHourGlass(color: Colors.deepPurple,size: 30)
-                                :
-                                  Image.network(
-                                    _image,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                  ),
+        Text('Your image'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            ClipRRect(
+              borderRadius: new BorderRadius.circular(50.0),
+              child: _image == null
+                  ?
+              ClipRRect(borderRadius: new BorderRadius.circular(50),clipBehavior: Clip.antiAlias,child:  SpinKitRipple(color: Colors.pink,size: 80),)
+                  :
+              _isLoadingImg
+                  ?
+              SpinKitHourGlass(color: Colors.deepPurple,size: 30)
+                  :
+              Image.network(
+                _image,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(right: 0),
+            ),
+            Container(
+                alignment: Alignment.center,
+                child: InkWell(
+                  child: CircleAvatar(
+                    child: Icon(
+                      Icons.add_a_photo,
+                      color: Colors.pink,
+                    ),
+                    radius: 20,
+                    backgroundColor: Colors.transparent,
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 0),
-                  ),
-                  Container(
-                      alignment: Alignment.center,
-                      child: InkWell(
-                        child: CircleAvatar(
-                          child: Icon(
-                            Icons.add_a_photo,
-                            color: Colors.pink,
-                          ),
-                          radius: 20,
-                          backgroundColor: Colors.transparent,
-                        ),
-                        onTap: getImage,
-                      )
-                  ),
-                ],
-              )
+                  onTap: getImage,
+                )
+            ),
+          ],
+        )
       ],
     );
 
 
+    final FounderInfo = Container(
+      margin:  EdgeInsets.only(left:5.0,right: 5.0),
+      padding:  EdgeInsets.only(top: height/35,left: width/18,right: width/18,bottom: height/35),
+      decoration: BoxDecoration(
+        border: Border.all(color: Color(0xffeaeff2)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Flex(
+        direction: Axis.vertical,
+        children: <Widget>[
+          SizedBox(height: height/60),
+          founderName,
+          SizedBox(height: height/35),
+          founderphone,
+          SizedBox(height: height/35),
+          founderImge,
+        ],
+      ),
+    );
+
+
     final publish = !_isLoading
-                                ?
-                                 FloatingActionButton.extended(
-                                  icon: Icon(Icons.public),
-                                  label: Text('publish'),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(13)
-                                  ),
-                                  backgroundColor: Colors.pink,
-                                  heroTag: "publish button",
-                                  onPressed: () {
-                                    validateSaveAndPublish(_formKey,context,objetName,townName,quaterController.text,descriptionController.text,nameController.text,phoneController.text,_image);
-                                   },
-                                  )
+        ?
+    FloatingActionButton.extended(
+      icon: Icon(Icons.public),
+      label: Text('publish'),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(13)
+      ),
+      backgroundColor: Colors.pink,
+      heroTag: "publish button",
+      onPressed: () {
+
+        objectName == 'Other...'
+                              ?
+                          objectName = otherObjectController.text
                               :
-                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  SpinKitWave(color: Colors.deepPurple,size: 30),
-                                ],
-                               );
+                          objectName = objectName;
+
+        townName == 'Other...'
+                              ?
+                          townName = otherTownController.text
+                              :
+                          townName = townName;
+
+        validateSaveAndPublish(_formKey,context,objectName,townName,quarterController.text,descriptionController.text,nameController.text,phoneController.text,_image);
+      },
+    )
+        :
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SpinKitWave(color: Colors.deepPurple,size: 30),
+      ],
+    );
 
 
     return WillPopScope(
@@ -538,22 +650,42 @@ class CreateNewFoundState extends State<CreateNewFound>{
                 padding: EdgeInsets.only(left: 24.0, right: 24.0),
                 children: <Widget>[
 
+                  SizedBox(height: 20.0),
+                  objectTitle,
+                  SizedBox(height: 10.0),
                   objectNames,
+                  objectName == 'Other...'
+                      ?
+                  SizedBox(height: 10.0)
+                      :
+                  SizedBox(height: 0.0),
+                  objectName == 'Other...'
+                      ?
+                  otherObject
+                      :
+                  SizedBox(height: 0.0),
+                  SizedBox(height: 15.0),
+                  townTitle,
                   SizedBox(height: 10.0),
                   town,
+                  townName == 'Other...'
+                      ?
+                  SizedBox(height: 10.0)
+                      :
+                  SizedBox(height: 0.0),
+                  townName == 'Other...'
+                      ?
+                  otherTown
+                      :
+                  SizedBox(height: 0.0),
                   SizedBox(height: 10.0),
-                  quater,
+                  quarter,
                   SizedBox(height: 10.0),
                   description,
                   SizedBox(height: 10.0),
-
                   camera,
                   SizedBox(height: 10.0),
-                  founderName,
-                  SizedBox(height: 10.0),
-                  founderphone,
-                  SizedBox(height: 10.0),
-                  founderImge,
+                  FounderInfo,
                   SizedBox(height: 15.0),
                   publish,
                   SizedBox(height: 25.0),
@@ -573,6 +705,8 @@ class CreateNewFoundState extends State<CreateNewFound>{
         }
     );
   }
+
+
 }
 
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:findall/view/Home/Home.dart';
 import 'package:toast/toast.dart';
@@ -27,8 +29,6 @@ class _FoundListState extends State<FoundList> {
     super.initState();
     _loadData();
   }
-
-
 
 
   _loadData() async{
@@ -88,6 +88,13 @@ class _FoundListState extends State<FoundList> {
 
   }
 
+ /* _convertInToBase64(image){
+    List<int> imageBytes = new File(image).readAsBytesSync();
+    String base64Image = base64Encode(imageBytes);
+    
+    return base64Image;
+  }
+*/
 
   Widget _buildProductItem(BuildContext context, int index){
     double width = MediaQuery.of(context).size.width;
@@ -189,8 +196,8 @@ class _FoundListState extends State<FoundList> {
                  fabCloseIcon: Icon(Icons.close,color: Colors.deepPurple),
                  options:
                  <Widget>[
-                   IconButton(icon: Icon(FontAwesomeIcons.whatsapp,color: Colors.green), onPressed: () {
-                     FlutterShareMe().shareToWhatsApp(msg: 'A'+ ' ' + foundList[index]['objectName'] + ' ' +'has been found'+ ' ' +'in'+ ' ' + foundList[index]['town'] + ','+ foundList[index]['quarter'] + '.'+ 'Please download findall App on playstore for more infos');
+                   IconButton(icon: Icon(FontAwesomeIcons.whatsapp,color: Colors.green), onPressed: (){
+                     FlutterShareMe().shareToWhatsApp(base64Image: base64Url.encode(utf8.encode((foundList[index]['images'][0]))));
                    }, iconSize: 28.0, color: Colors.white,key: Key(index.toString() + 'what')),
 
                    IconButton(icon: Icon(FontAwesomeIcons.facebook,color: Colors.black), onPressed: ()async {
@@ -267,10 +274,60 @@ class _FoundListState extends State<FoundList> {
               )
           )
               :
-          foundList==null
+          foundList == null
               ?
                 Center(
-                  child: Text('Sorry there is not publish object'),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(height: 80),
+                      Text('Nothing Found ?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 33
+                        )
+                      ),
+
+                      SizedBox(height: 40),
+
+                    Center(
+                      child: Image.asset('assets/images/error_loupe.png',fit: BoxFit.contain),
+                    ),
+
+                      SizedBox(height: 40),
+
+                      Container(
+                        margin: EdgeInsets.only(left: 30,right: 30),
+                        child: Text("I can't believe,I'm sure something has been found.Please check your internet connection then retry.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 13
+                            )
+                        ),
+                      ),
+
+                      SizedBox(height: 40),
+
+                      FloatingActionButton.extended(
+                        icon: Icon(Icons.settings_ethernet),
+                        label: Text('Re-check'),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)
+                        ),
+                        backgroundColor: Colors.deepPurple,
+                        heroTag: "check",
+                        onPressed: (){
+                          _loadData();
+                        },
+                      ),
+
+                      SizedBox(height: 80),
+
+                    ],
+                  ),
                 )
               :
                 PageView.builder(

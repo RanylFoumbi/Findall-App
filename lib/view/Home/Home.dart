@@ -34,7 +34,7 @@ class BackgroundImage extends StatelessWidget {
                   :
                    Navigator.push(
                      context,
-                     MaterialPageRoute(builder: (context) => CreateNewFound()),
+                     MaterialPageRoute(builder: (context) => SMSLoginPage()),
                    );
   }
 
@@ -102,18 +102,18 @@ class BackgroundImage extends StatelessWidget {
               ),
             ),
 
-
+          DropdownButton(items: null, onChanged: null,),
           Container(
               margin: EdgeInsets.only(
                   top: size.height/1.5,
-                  left: size.width/3.7
+                  left: size.width/5.0
               ),
               padding: EdgeInsets.all(10),
               child: Column(
                 children: <Widget>[
                   FloatingActionButton.extended(
                     icon: Icon(Icons.view_list),
-                    label: Text('Pubs List'),
+                    label: Text('See lost objects'),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)
                     ),
@@ -129,7 +129,7 @@ class BackgroundImage extends StatelessWidget {
                   SizedBox(height: 25),
                   FloatingActionButton.extended(
                     icon: Icon(Icons.add),
-                    label: Text('New Found'),
+                    label: Text('Add lost object'),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)
                     ),

@@ -144,6 +144,7 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
       setState(() {
         user = user;
       });
+      print(user);
     });
     return user;
   }
@@ -198,7 +199,7 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                         ),
                       ),
                       validator: (String value) {
-                        if(value.length <= 4) {
+                        if(value.length <= 0) {
                           return "Entrez un numéro de téléphone";
                         }
                       },
@@ -211,19 +212,23 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                         height: 50,
                         child: !_loading ? RaisedButton(
                           onPressed: () {
-                            _formKey.currentState.validate();
-                            setState(() {
-                              _loading = true;
-                            });
+                           /* _formKey.currentState.validate();
+
                             verifyPhone().then((val) {
-                              setState(() {
-                                _loading = false;
-                              });
+                              print('0000000000000000000000000');
+                              print(verificationId);
+
                             })
                                 .catchError((err) {
                               print(err);
                               Toast.show("Numéro invalide", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-                            });
+                            });*/
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreateNewFound(),
+                              ),
+                            );
 
                           },
                           color: Colors.pink,
