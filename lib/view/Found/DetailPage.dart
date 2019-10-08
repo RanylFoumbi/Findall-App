@@ -4,6 +4,8 @@ import 'package:findall/view/Found/FoundList.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:toast/toast.dart';
+import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 import 'package:photo_view/photo_view.dart';
 
 class DetailPage extends StatelessWidget {
@@ -232,7 +234,9 @@ class DetailPage extends StatelessWidget {
           ),
           backgroundColor: Colors.pink,
           heroTag: "map$index",
-          onPressed: (){ },
+          onPressed: (){
+            Toast.show("Coming soon.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+          },
         ),
 
         FloatingActionButton.extended(
@@ -243,7 +247,9 @@ class DetailPage extends StatelessWidget {
           ),
           backgroundColor: Colors.white,
           heroTag: "call$index",
-          onPressed: (){ },
+          onPressed: (){
+            UrlLauncher.launch('tel:'+ this.contact);
+          },
         ),
 
       ],

@@ -212,7 +212,7 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                         height: 50,
                         child: !_loading ? RaisedButton(
                           onPressed: () {
-                           /* _formKey.currentState.validate();
+                            /*_formKey.currentState.validate();
 
                             verifyPhone().then((val) {
                               print('0000000000000000000000000');

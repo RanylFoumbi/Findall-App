@@ -1,17 +1,19 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:findall/view/Home/Home.dart';
 import 'package:toast/toast.dart';
 import 'dart:convert'; //it allows us to convert our json to a list
 import 'package:http/http.dart' as http;
-import 'package:fab_circular_menu/fab_circular_menu.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'DetailPage.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:findall/utilities.dart';
 
 class FoundList extends StatefulWidget {
 
@@ -27,9 +29,30 @@ class _FoundListState extends State<FoundList> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _internetAvalability();
   }
 
+  _internetAvalability()async{
+    setState(() {
+      _isLoading = true;
+    });
+    if( await checkInternet() == true ){
+      _loadData();
+    }else{
+      if(storage.getItem('firstdata') != null){
+
+        setState(() {
+          _isLoading = false;
+          foundList = storage.getItem('firstdata');
+        });
+      }else{
+        setState(() {
+          _isLoading = false;
+          foundList = null;
+        });
+      }
+    }
+  }
 
   _loadData() async{
 
@@ -67,7 +90,7 @@ class _FoundListState extends State<FoundList> {
           // Une autre Erreur
 
           print("Une érreur s'est produite, veuillez reéssayer.");
-          Toast.show("Une érreur s'est produite, veuillez reéssayer.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+          Toast.show("Error, please retry.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
           setState(() {
             _isLoading = false;
           });
@@ -80,7 +103,7 @@ class _FoundListState extends State<FoundList> {
         foundList = storage.getItem('firstdata');
       });
       print("Pas d'internet.");
-      Toast.show("veuillez vérifier votre connexion internet.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+      Toast.show("Please check your internet connection then retry.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
       setState(() {
         _isLoading = false;
       });
@@ -88,13 +111,18 @@ class _FoundListState extends State<FoundList> {
 
   }
 
- /* _convertInToBase64(image){
-    List<int> imageBytes = new File(image).readAsBytesSync();
-    String base64Image = base64Encode(imageBytes);
-    
-    return base64Image;
+  _share(image,msg)async{
+    if( await checkInternet() == true) {
+      var request = await HttpClient().getUrl(Uri.parse(image));
+      var response = await request.close();
+      Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+      await Share.file(
+          'Use findall to find your lost documents', 'foundobject.jpg', bytes,
+          'image/jpg', text: msg);
+    }else{
+      Toast.show("Please check your internet connection then retry.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+    }
   }
-*/
 
   Widget _buildProductItem(BuildContext context, int index){
     double width = MediaQuery.of(context).size.width;
@@ -104,7 +132,6 @@ class _FoundListState extends State<FoundList> {
          child: GestureDetector(
            child: Card(
              color: Colors.white,
-             child: FabCircularMenu(
                  child: Container(
                    child: Center(
                        child: Padding(
@@ -114,12 +141,12 @@ class _FoundListState extends State<FoundList> {
 
                              new Container(
                                  width: width,
-                                 height: height/1.5,
+                                 height: height/2.7,
                                  padding: const EdgeInsets.all(3.0),
                                  child:
                                  CachedNetworkImage(
                                    width: width,
-                                   height: height/1.3,
+                                   height: height/2.7,
                                    fit: BoxFit.cover,
                                    repeat: ImageRepeat.noRepeat,
                                    imageUrl: foundList[index]['images'][0],
@@ -129,7 +156,7 @@ class _FoundListState extends State<FoundList> {
                              ),
 
                              new Container(
-                               padding: const EdgeInsets.all(10.0),
+                               padding: const EdgeInsets.all(7.0),
                                child: Column(
                                  crossAxisAlignment: CrossAxisAlignment.start,
                                  children: <Widget>[
@@ -137,8 +164,37 @@ class _FoundListState extends State<FoundList> {
                                    Row(
                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                      children: <Widget>[
-                                       Text(foundList[index]['objectName'], style: Theme.of(context).textTheme.title),
+                                       Expanded(
+                                           child: Text(foundList[index]['objectName'], style: Theme.of(context).textTheme.title),
+                                       ),
 
+
+                                       new Container(
+                                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+                                               border: Border.all(color: Colors.white),
+                                               color: Colors.white,
+                                               boxShadow:[
+                                                 BoxShadow(
+                                                     color: Color(0xffd4d4d4),
+                                                     blurRadius: 10.0, // has the effect of softening the shadow
+                                                     offset: Offset(0,5)
+                                                 )
+                                               ]
+                                           ),
+                                           child: IconButton(
+                                               color: Colors.white,
+                                               iconSize: 28,
+                                               icon: Icon(Icons.share,
+                                                 color: Colors.deepPurple,
+                                                 size: 28,
+                                               ),
+                                               onPressed: ()async{
+                                                 _share(foundList[index]['images'][0], 'A'+ ' ' + foundList[index]['objectName'] + ' ' +'has been found'+ ' ' +'on'+ ' ' + foundList[index]['date'] +' ' +'in'+ ' ' + foundList[index]['town'] + ','+ foundList[index]['quarter'] + '.'+ 'Please download findall App on playstore for more infos');
+                                               }
+                                           ),
+                                       )
+
+                                       
                                      ],
                                    ),
                                    SizedBox(height: 8 ),
@@ -182,35 +238,13 @@ class _FoundListState extends State<FoundList> {
                                ),
 
                              )
+
                            ],
                            crossAxisAlignment: CrossAxisAlignment.start,
                          ),
                        )
                    ),
                  ),
-                 ringColor: Colors.white12,
-                 ringDiameter: width/1.5,
-                 fabColor: Colors.white,
-                 fabMargin: EdgeInsets.only(left: 24,bottom: 24,top: 10,right: 8.0),
-                 fabOpenIcon: Icon(Icons.share,color: Colors.deepPurple,),
-                 fabCloseIcon: Icon(Icons.close,color: Colors.deepPurple),
-                 options:
-                 <Widget>[
-                   IconButton(icon: Icon(FontAwesomeIcons.whatsapp,color: Colors.green), onPressed: (){
-                     FlutterShareMe().shareToWhatsApp(base64Image: base64Url.encode(utf8.encode((foundList[index]['images'][0]))));
-                   }, iconSize: 28.0, color: Colors.white,key: Key(index.toString() + 'what')),
-
-                   IconButton(icon: Icon(FontAwesomeIcons.facebook,color: Colors.black), onPressed: ()async {
-
-                   }, iconSize: 28.0, color: Colors.white,key: Key(index.toString() + 'face')),
-
-                   IconButton(icon: Icon(FontAwesomeIcons.twitter,color: Colors.blue,key: Key(index.toString() + 'twitter')), onPressed: () {
-
-                   }, iconSize: 28.0, color: Colors.white),
-
-                 ]
-             ),
-
            ),
            onTap: (){
              Navigator.push(
@@ -320,7 +354,7 @@ class _FoundListState extends State<FoundList> {
                         backgroundColor: Colors.deepPurple,
                         heroTag: "check",
                         onPressed: (){
-                          _loadData();
+                          _internetAvalability();
                         },
                       ),
 
@@ -330,7 +364,7 @@ class _FoundListState extends State<FoundList> {
                   ),
                 )
               :
-                PageView.builder(
+                ListView.builder(
                   itemBuilder: _buildProductItem,
                   itemCount: foundList.length,
                   scrollDirection: Axis.vertical,

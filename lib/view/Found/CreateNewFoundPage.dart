@@ -21,7 +21,7 @@ class CreateNewFound extends StatefulWidget{
 
 class CreateNewFoundState extends State<CreateNewFound>{
 
-  LocalStorage storage = LocalStorage('userphoneNumber');
+  LocalStorage _storage = LocalStorage('userdata');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 //  var objectNameController = TextEditingController();
   var otherObjectController = TextEditingController();
@@ -64,7 +64,12 @@ class CreateNewFoundState extends State<CreateNewFound>{
         'date' : DateFormat("EEE d MMM yyyy Hms").format(time),
         'images': urlList,
       };
+
       print(imageList);
+
+      _storage.setItem('userphone', founderPhone);
+      _storage.setItem('username', founderName);
+      _storage.setItem('userimage', founderImage);
 
       setState(() {
         _isLoading = true;
@@ -183,6 +188,10 @@ class CreateNewFoundState extends State<CreateNewFound>{
   getImageFromGallery(context) async{
     Navigator.of(context).pop();
     var picture = await ImagePicker.pickImage(source: ImageSource.gallery);
+    picture == null
+        ?
+       Toast.show("You have to upload at least one image before publish.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.CENTER)
+        :
     setState(() {
       imageList.add(picture);
     });
@@ -259,21 +268,19 @@ class CreateNewFoundState extends State<CreateNewFound>{
   void validateSaveAndPublish(_formKey,context,objectName,town,quarter,description,founderName,founderPhone,founderImage){
 
     if (_formKey.currentState.validate()) {
-      imageList == null
-          ?
-      Toast.show("veuillez piquer des images et réessayer.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM)
-          :
       _formKey.currentState.save();
       setState(() {
         _isLoading = true;
       });
 
       uploadImage().then((urlList) {
-        publishFound(context, objectName, town, quarter, description, urlList,founderName,founderPhone,founderImage);
+          publishFound(context, objectName, town, quarter, description, urlList,founderName,founderPhone,founderImage);
+
       });
 
     }
     else{
+      Toast.show("Please,make sure you have filled all the form then retry.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
     }
   }
 
@@ -445,9 +452,10 @@ class CreateNewFoundState extends State<CreateNewFound>{
       decoration: InputDecoration(
         hintText: 'In which quarter?',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
-        prefixIcon: Icon(Icons.home),
+        prefixIcon: Icon(Icons.home,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),borderSide: BorderSide(color: Color(0xffdcdcdc),))
       ),
     );
 
@@ -470,6 +478,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
         alignLabelWithHint: true,
         contentPadding: EdgeInsets.only(top: 10,right: 3, left: 10, bottom: 2),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),borderSide: BorderSide(color: Color(0xffdcdcdc),))
       ),
     );
 
@@ -500,9 +509,10 @@ class CreateNewFoundState extends State<CreateNewFound>{
       decoration: InputDecoration(
         hintText: 'Your name',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
-        prefixIcon: Icon(Icons.person),
+        prefixIcon: Icon(Icons.person,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),borderSide: BorderSide(color: Color(0xffdcdcdc),))
       ),
       validator: (String value){
         if(value.isEmpty){
@@ -520,9 +530,10 @@ class CreateNewFoundState extends State<CreateNewFound>{
       decoration: InputDecoration(
         hintText: 'Your phone',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
-        prefixIcon: Icon(Icons.phone),
+        prefixIcon: Icon(Icons.phone,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0),borderSide: BorderSide(color: Color(0xffdcdcdc),))
       ),
       validator: (String value){
         if(value.isEmpty){
@@ -536,7 +547,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
     final founderImge = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text('Your image'),
+        Text('Founder image'),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -608,7 +619,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       icon: Icon(Icons.public),
       label: Text('publish'),
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(13)
+          borderRadius: BorderRadius.circular(10)
       ),
       backgroundColor: Colors.pink,
       heroTag: "publish button",
@@ -687,7 +698,11 @@ class CreateNewFoundState extends State<CreateNewFound>{
                   SizedBox(height: 10.0),
                   FounderInfo,
                   SizedBox(height: 15.0),
-                  publish,
+                  imageList.length == 0
+                                  ?
+                                  Text('Please, fill the whole form',textAlign: TextAlign.center,style: TextStyle(fontSize: 15,fontWeight: FontWeight.w500),)
+                                  :
+                                  publish,
                   SizedBox(height: 25.0),
 
                 ],

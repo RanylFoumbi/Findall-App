@@ -8,7 +8,7 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Findall',
+      title: 'findall',
       debugShowCheckedModeBanner: false,
       theme: new ThemeData(
           primaryColor: Colors.black,
