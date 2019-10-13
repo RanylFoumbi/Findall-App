@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
+import 'package:page_transition/page_transition.dart';
 import 'package:photo_view/photo_view.dart';
 
 class DetailPage extends StatelessWidget {
@@ -14,7 +15,7 @@ class DetailPage extends StatelessWidget {
   String objectName;
   String description;
   String town;
-  String quater;
+  String quarter;
   String date;
   String contact;
   List images;
@@ -26,14 +27,13 @@ class DetailPage extends StatelessWidget {
               this.objectName,
               this.description,
               this.town,
-              this.quater,
+              this.quarter,
               this.contact,
               this.images,
               this.profileImg,
               this.founderName,
               this.date
         }) : super(key: key);
-//  List foundList = getListOfFoundObjets();
 
   @override
   Widget build(BuildContext context) {
@@ -49,16 +49,17 @@ class DetailPage extends StatelessWidget {
             onPressed: (){
               Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => FoundList()
+                  PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      child: FoundList()
                   )
               );
             }
         ),
 
        SizedBox(width: width/2.4),
-        Text('Found by'+ '  ' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 16)),
-        SizedBox(width: 2),
+        Text('Trouvé par'+ ' ' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 16)),
+
         ClipRRect(
           borderRadius: BorderRadius.circular(50),
           child: this.profileImg == null
@@ -77,6 +78,7 @@ class DetailPage extends StatelessWidget {
       decoration: BoxDecoration(
           border: Border.all(color: Color(0xffeaeff2),width: 0.5),
           borderRadius: BorderRadius.circular(15),
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
                 color: Color(0xffd4d4d4),
@@ -98,18 +100,19 @@ class DetailPage extends StatelessWidget {
                 fit: BoxFit.cover,
                 repeat: ImageRepeat.noRepeat,
                 placeholder: (context, url) => SpinKitFadingCircle(color: Colors.deepPurple,size: 50),
-                errorWidget: (context, url, error) => new Icon(Icons.error)
+                errorWidget: (context, url, error) => new Icon(Icons.error,color: Colors.deepPurple,size: 35)
               )
           );
         },
         itemCount: this.images.length,
         autoplay: true,
         pagination: new SwiperPagination(margin: EdgeInsets.all(0),),
-        control: new SwiperControl(padding: EdgeInsets.all(0),
+        control: new SwiperControl(
+            padding: EdgeInsets.all(0),
             color: Colors.deepPurple,
             size: 0,
             iconPrevious: null,
-            iconNext: null
+            iconNext: null,
           ),
       ),
     );
@@ -121,7 +124,7 @@ class DetailPage extends StatelessWidget {
       margin:  EdgeInsets.only(left:15.0,right: 15.0),
       decoration: BoxDecoration(
           border: Border.all(color: Color(0xffeaeff2)),
-          borderRadius: BorderRadius.circular(13)
+          borderRadius: BorderRadius.circular(10)
       ),
       child: Row(
         children: <Widget>[
@@ -138,7 +141,7 @@ class DetailPage extends StatelessWidget {
 
     final description = Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        verticalDirection: VerticalDirection.up,
+        verticalDirection: VerticalDirection.down,
         children: <Widget>[
           Container(child: Text('Description:' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15))),
           SizedBox(width: width/30),
@@ -152,11 +155,11 @@ class DetailPage extends StatelessWidget {
     final location = Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        verticalDirection: VerticalDirection.up,
+        verticalDirection: VerticalDirection.down,
         children: <Widget>[
           Text('Location:' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15)),
           SizedBox(width: width/30),
-          Expanded(child: Text(this.town + ', '+ this.quater  , style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)))
+          Expanded(child: Text(this.town + ', '+ this.quarter  , style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)))
         ],
       )
     );
@@ -164,9 +167,9 @@ class DetailPage extends StatelessWidget {
     final date = Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        verticalDirection: VerticalDirection.up,
+        verticalDirection: VerticalDirection.down,
         children: <Widget>[
-          Text('Discover date:' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15)),
+            Text('Date de découverte:' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15)),
           SizedBox(width: width/30),
           Expanded(child: Text( this.date  , style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)))
         ],
@@ -176,7 +179,7 @@ class DetailPage extends StatelessWidget {
     final contact = Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        verticalDirection: VerticalDirection.up,
+        verticalDirection: VerticalDirection.down,
         children: <Widget>[
           Text('Contact:' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15)),
           SizedBox(width: width/30),
@@ -188,9 +191,9 @@ class DetailPage extends StatelessWidget {
     final founderName = Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        verticalDirection: VerticalDirection.up,
+        verticalDirection: VerticalDirection.down,
         children: <Widget>[
-          Text('By:' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15)),
+          Text('Par:' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15)),
           SizedBox(width: width/8),
           Expanded(child: Text(this.founderName , style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15)))
         ],
@@ -226,32 +229,61 @@ class DetailPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
 
-        FloatingActionButton.extended(
-          icon: Image.asset('assets/images/map.png',height: 25,width: 25,),
-          label: Text('Map'),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(13)
+        Container(
+          height: 55,
+          width: width/2.6,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                  color: Color(0xffd4d4d3),
+                  blurRadius: 10.0, // has the effect of softening the shadow
+                  offset: Offset(2,7)
+              )
+            ]
           ),
-          backgroundColor: Colors.pink,
-          heroTag: "map$index",
-          onPressed: (){
-            Toast.show("Coming soon.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
-          },
-        ),
-
-        FloatingActionButton.extended(
-          icon: Icon(Icons.phone,size: 30,color: Colors.deepPurple,),
-          label: Text('Call',style: TextStyle(color: Colors.deepPurple),),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(13)
+          child: FloatingActionButton.extended(
+            icon: Image.asset('assets/images/map.png',height: 25,width: 25,),
+            label: Text('Map'),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)
+            ),
+            backgroundColor: Colors.pink,
+            heroTag: "map$index",
+            onPressed: (){
+              Toast.show("Bientôt disponible!", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+            },
           ),
-          backgroundColor: Colors.white,
-          heroTag: "call$index",
-          onPressed: (){
-            UrlLauncher.launch('tel:'+ this.contact);
-          },
-        ),
+       ),
 
+        Container(
+          height: 55,
+          width: width/2.6,
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.white),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                    color: Color(0xffd4d4d3),
+                    blurRadius: 10.0, // has the effect of softening the shadow
+                    offset: Offset(2,7)
+                )
+              ]
+          ),
+          child: FloatingActionButton.extended(
+            icon: Icon(Icons.phone,size: 30,color: Colors.deepPurple,),
+            label: Text('Appel',style: TextStyle(color: Colors.deepPurple),),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)
+            ),
+            backgroundColor: Colors.white,
+            heroTag: "call$index",
+            onPressed: (){
+              UrlLauncher.launch('tel:'+ this.contact);
+            },
+        ),
+       ),
       ],
     );
 
@@ -259,13 +291,12 @@ class DetailPage extends StatelessWidget {
     return WillPopScope(
         child: Scaffold(
           body: ListView(
-            padding: EdgeInsets.all(5),
+            padding: EdgeInsets.only(left: 5,top: 5,right: 5,bottom: 45),
             shrinkWrap: true,
-//        padding: EdgeInsets.only(left: 24.0, right: 24.0),
             children: <Widget>[
               SizedBox(height: 20),
               topBar,
-              SizedBox(height: 10),
+              SizedBox(height: 07),
               slider,
               SizedBox(height: 30),
               objectName,
@@ -280,8 +311,9 @@ class DetailPage extends StatelessWidget {
         onWillPop: (){
           Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => FoundList()
+              PageTransition(
+                  type: PageTransitionType.rightToLeft,
+                  child: FoundList()
               )
           );
         }

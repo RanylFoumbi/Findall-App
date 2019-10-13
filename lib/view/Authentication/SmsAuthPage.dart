@@ -6,6 +6,8 @@ import 'package:findall/view/Found/CreateNewFoundPage.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:findall/view/Home/Home.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:findall/utilities.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -42,8 +44,17 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
     final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
       this.verificationId = verId;
       print("Sign in");
+      setState(() {
+        _loading = true;
+      });
       smsCodeDialog(context).then((value) {
+        setState(() {
+          _loading = false;
+        });
       }).catchError((err) {
+        setState(() {
+          _loading = false;
+        });
         Toast.show("Code Erroné.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
       });
     };
@@ -73,6 +84,7 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
       });
     } catch (e) {
       print("Error");
+      print(e);
       Toast.show("Erreur, Veuillez reésayer.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
     }
     setState(() {
@@ -90,6 +102,7 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),side: BorderSide(color: Color(0xffdcdcdc))),
             content: TextField(
               keyboardType: TextInputType.number,
+
               onChanged: (value) {
                 this.smsCode = value;
               },
@@ -101,13 +114,15 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                   FirebaseAuth.instance.currentUser().then((user) {
                     signIn().then((user) {
                       storage.setItem('userphoneNumber', numController.text);
+
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CreateNewFound(),
-                        ),
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.fade,
+                              child: CreateNewFound()
+                          )
                       );
-                      print(user);
+
                     }).catchError((err) {
                       Toast.show("Code Invalide", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
                       Navigator.of(context).pop();
@@ -183,7 +198,7 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
-                        hintText: "Phone Number",
+                        hintText: "Numéro de tel",
                         hintStyle: TextStyle(
                           fontSize: 16.0,
                         ),
@@ -199,8 +214,11 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                         ),
                       ),
                       validator: (String value) {
-                        if(value.length <= 0) {
-                          return "Entrez un numéro de téléphone";
+                        if(value.isEmpty) {
+                          return "Entrer un numéro de téléphone";
+                        }
+                        else if(value.length <= 4) {
+                          return "Entrer un numéro de téléphone valide";
                         }
                       },
                     ),
@@ -211,24 +229,30 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                         alignment: _loading ? Alignment.center : null,
                         height: 50,
                         child: !_loading ? RaisedButton(
-                          onPressed: () {
-                            /*_formKey.currentState.validate();
+                          onPressed: () async{
 
-                            verifyPhone().then((val) {
-                              print('0000000000000000000000000');
-                              print(verificationId);
+                            if(await checkInternet() == true){
+                              _formKey.currentState.validate();
 
-                            })
-                                .catchError((err) {
-                              print(err);
-                              Toast.show("Numéro invalide", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-                            });*/
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CreateNewFound(),
-                              ),
-                            );
+                              verifyPhone().then((val) {
+
+                              })
+                                  .catchError((err) {
+                                print(err);
+                                Toast.show("Numéro invalide", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+                              });
+                            }
+                            else{
+                              noInternet(context, "Veuillez vérifier votre connexion internet, puis réessayez");
+                            }
+
+                            /*Navigator.push(
+                                context,
+                                PageTransition(
+                                    type: PageTransitionType.fade,
+                                    child: CreateNewFound()
+                                )
+                            );*/
 
                           },
                           color: Colors.pink,
@@ -236,20 +260,27 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
                               borderRadius: BorderRadius.circular(10.0)
                           ),
                           child: Text(
-                            "CONTINUER",
+                            "Continuer",
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'Raleway',
-                              fontSize: 16.0,
+                              fontSize: 18.0,
                             ),
                           ),
-                        ) : SpinKitWave(color: Colors.deepPurple,size: 30)
+                        ) : SpinKitWave(
+                            color: Colors.deepPurple,
+                            size: 30
+                        )
                     ),
                     const SizedBox(height: 30.0),
                     Container(
                       alignment: Alignment.center,
                       child: Text("Entrez votre numéro de téléphone. Vous recevrez un code de confirmation par sms.",
-                        style: TextStyle(fontSize: 14.0), textAlign: TextAlign.center, ) ,
+                        style: TextStyle(
+                            fontSize: 14.0
+                        ),
+                          textAlign: TextAlign.center
+                      ),
                     )
                   ],
                 ),
@@ -258,8 +289,9 @@ class _SMSLoginPageState extends State<SMSLoginPage> {
         onWillPop: (){
           Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => Home()
+              PageTransition(
+                  type: PageTransitionType.upToDown,
+                  child: Home()
               )
           );
         }

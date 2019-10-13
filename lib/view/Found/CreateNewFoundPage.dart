@@ -11,6 +11,9 @@ import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:findall/view/Home/Home.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:findall/utilities.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CreateNewFound extends StatefulWidget{
 
@@ -23,10 +26,8 @@ class CreateNewFoundState extends State<CreateNewFound>{
 
   LocalStorage _storage = LocalStorage('userdata');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-//  var objectNameController = TextEditingController();
   var otherObjectController = TextEditingController();
   var otherTownController = TextEditingController();
-//  var townController = TextEditingController();
   var quarterController = TextEditingController();
   var descriptionController = TextEditingController();
   var phoneController = TextEditingController();
@@ -61,7 +62,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
         'founder': founderName,
         'fouderphone': founderPhone,
         'foundImage': founderImage,
-        'date' : DateFormat("EEE d MMM yyyy Hms").format(time),
+        'date' : DateFormat("EEE d MMM yyyy Hm").format(time),
         'images': urlList,
       };
 
@@ -90,11 +91,14 @@ class CreateNewFoundState extends State<CreateNewFound>{
           _isLoading = false;
         });
         Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FoundList()),
+            context,
+            PageTransition(
+                type: PageTransitionType.fade,
+                child: FoundList()
+            )
         );
         Toast.show("objet publié avec succès.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
-        print("objet publié avec succès");
+        print("Objet publié avec succès");
       }
       else {
 
@@ -105,7 +109,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
           setState(() {
             _isLoading = true;
           });
-          Toast.show("Cette addresse Email existe déja.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+//          Toast.show("Cette addresse Email existe déja.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
           print("Adresse Email existante.");
           setState(() {
             _isLoading = false;
@@ -116,7 +120,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
             _isLoading = true;
           });
           print("Une érreur s'est produite, veuillez reéssayer.");
-          Toast.show("Une érreur s'est produite, veuillez reéssayer.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+          Toast.show("Une érreur s'est produite, veuillez reéssayer.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
           setState(() {
             _isLoading = false;
           });
@@ -127,7 +131,8 @@ class CreateNewFoundState extends State<CreateNewFound>{
         _isLoading = true;
       });
       print("Pas d'internet.");
-      Toast.show("veuillez vérifier votre connexion internet.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+
+      noInternet(context, "Veuillez vérifier votre connexion internet, puis réessayez");
       setState(() {
         _isLoading = false;
       });
@@ -162,7 +167,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       });
     }).catchError((e){
       print(e);
-      Toast.show("veuillez réessayer.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+      Toast.show("Réessayer.", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
     });
 
   }
@@ -170,17 +175,20 @@ class CreateNewFoundState extends State<CreateNewFound>{
 
   uploadImage() async{
     var url;
+    List Urls = [];
     var uuid = new Uuid();
     var id = uuid.v4();
     for(var i=0; i<imageList.length; i++){
-      final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child("foundObjectImages/${id.toString()}.jpg");
+      final StorageReference firebaseStorageRef =
+      FirebaseStorage.instance.ref().child("foundObjectImages/${id.toString()}.jpg");
       final StorageUploadTask task = firebaseStorageRef.putFile(imageList[i]);
       var dowurl = await (await task.onComplete).ref.getDownloadURL();
       url = dowurl.toString();
-      setState(() {
-        urlList.add(url);
-      });
+      Urls.add(url);
     }
+    setState(() {
+      urlList = Urls;
+    });
     print(urlList);
     return urlList;
   }
@@ -188,13 +196,12 @@ class CreateNewFoundState extends State<CreateNewFound>{
   getImageFromGallery(context) async{
     Navigator.of(context).pop();
     var picture = await ImagePicker.pickImage(source: ImageSource.gallery);
-    picture == null
-        ?
-       Toast.show("You have to upload at least one image before publish.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.CENTER)
-        :
     setState(() {
       imageList.add(picture);
     });
+    if(picture == null){
+      Toast.show("Vous devez télécharger au moins une image avant de publier.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.CENTER);
+    }
 
   }
 
@@ -204,7 +211,9 @@ class CreateNewFoundState extends State<CreateNewFound>{
     setState(() {
       imageList.add(picture);
     });
-
+    if(picture == null){
+      Toast.show("Vous devez télécharger au moins une image avant de publier.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.CENTER);
+    }
   }
 
   Future Dialog(BuildContext context) async {
@@ -213,19 +222,19 @@ class CreateNewFoundState extends State<CreateNewFound>{
         barrierDismissible: true,
         builder: (BuildContext context) {
           return SimpleDialog(
-            title: const Text('Make a choice',style: TextStyle(fontSize: 17)),
+            title: const Text('Importer la photo depuis',style: TextStyle(fontSize: 17)),
             children: <Widget>[
               SimpleDialogOption(
                 onPressed: () {
                   getImageFromCamera(context);
                 },
-                child: const Text('From Camera'),
+                child: const Text('la caméra'),
               ),
               SimpleDialogOption(
                 onPressed: () {
                   getImageFromGallery(context);
                 },
-                child: const Text('From Gallery'),
+                child: const Text('la gallerie'),
               ),
 
             ],
@@ -243,7 +252,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       ],
     );
     if(imageList.length == 0){
-      return Text("Pick images.",style: TextStyle(color: Colors.black));
+      return Text("Télécharger des images de l'objet.",style: TextStyle(color: Colors.black));
     }
     else{
       for(var i=0; i<imageList.length; i++){
@@ -275,12 +284,11 @@ class CreateNewFoundState extends State<CreateNewFound>{
 
       uploadImage().then((urlList) {
           publishFound(context, objectName, town, quarter, description, urlList,founderName,founderPhone,founderImage);
-
       });
 
     }
     else{
-      Toast.show("Please,make sure you have filled all the form then retry.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+      Toast.show("Assurez-vous d'avoir rempli tout le formulaire, puis réessayez.", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
     }
   }
 
@@ -299,10 +307,11 @@ class CreateNewFoundState extends State<CreateNewFound>{
           icon: Icon(Icons.chevron_left, color: Colors.deepPurple,size: 40),
           onPressed: (){
             Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Home(),
-              ),
+                context,
+                PageTransition(
+                    type: PageTransitionType.fade,
+                    child: Home()
+                )
             );
           }
       ),
@@ -312,14 +321,21 @@ class CreateNewFoundState extends State<CreateNewFound>{
     );
 
     final objectTitle =  new Container(
-          width: width/1.2,
-          padding: EdgeInsets.only(left: 7.0,right: 8.0),
-          child: Text('Which object have you found? Please choose "other..." if no choice.',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400
-            )
-          ),
+          width: width/1.15,
+          padding: EdgeInsets.only(left: 6.5,right: 6.5),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                  child: Text("Quel objet avez-vous trouvé? S'il vous plaît choisissez l'option 'Autre...' si l'object ne figure pas.",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400
+                      ),
+                    textAlign: TextAlign.center,
+                  ),
+              )
+            ],
+          )
     );
 
     final objectNames =  new Container(
@@ -342,7 +358,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
                 });
               },
               value: objectName,
-              items: <String>[ "Carte national d'identité",'Mobile phone', 'Passe port', 'Dilplômes','Relevé de note','Other...' ]
+              items: <String>[ "Carte national d'identité",'Téléphone portable', 'Passe port', 'Dilplômes','Relevé de note','Actes de naissance','Autre...' ]
                   .map((String value) {
                 return new DropdownMenuItem<String>(
                   value: value,
@@ -358,7 +374,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       keyboardType: TextInputType.text,
       autofocus: false,
       decoration: InputDecoration(
-        hintText: 'other type of object',
+        hintText: "Autre type d'objet",
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(
             Icons.devices_other,
@@ -377,15 +393,23 @@ class CreateNewFoundState extends State<CreateNewFound>{
       ),
     );
 
+
     final townTitle =  new Container(
-      width: width/1.2,
-      padding: EdgeInsets.only(left: 7.0,right: 8.0),
-      child: Text('Where? Please choose "other..." if no choice.',
-          style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400
-          )
-      ),
+        width: width/1.15,
+        padding: EdgeInsets.only(left: 6.5,right: 6.5),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text("Où? S'il vous plaît choisissez l'option 'Autre...' si la ville ne figure pas.",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400
+                  ),
+                textAlign: TextAlign.center,
+              ),
+            )
+          ],
+        )
     );
 
     final town = new Container(
@@ -408,7 +432,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
             });
           },
           value: townName,
-          items: <String>["Yaoundé", 'Douala', 'Bertoua','Bamenda', 'Buéa', 'Bafoussam','Ngaoundéré', 'Maroua', 'Garoua','Ebolowa','Other...']
+          items: <String>["Yaoundé", 'Douala', 'Bertoua','Bamenda', 'Buéa', 'Bafoussam','Ngaoundéré', 'Maroua', 'Garoua','Ebolowa','Autre...']
               .map((String value) {
             return new DropdownMenuItem<String>(
               value: value,
@@ -423,10 +447,10 @@ class CreateNewFoundState extends State<CreateNewFound>{
       keyboardType: TextInputType.text,
       autofocus: false,
       decoration: InputDecoration(
-        hintText: 'Other town',
+        hintText: 'Autre ville',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(
-            Icons.devices_other,
+            Icons.location_city,
             color: Color(0xffdcd3d3)
         ),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -444,13 +468,13 @@ class CreateNewFoundState extends State<CreateNewFound>{
       autofocus: false,
       validator: (String value){
         if(value.isEmpty ){
-          return "This field must not be empty";
+            return "Ce champ ne peut pas être vide";
         } else {
           return null;
         }
       },
       decoration: InputDecoration(
-        hintText: 'In which quarter?',
+        hintText: 'Dans quel quartier?',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.home,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -467,13 +491,13 @@ class CreateNewFoundState extends State<CreateNewFound>{
       autofocus: false,
       validator: (String value){
         if(value.isEmpty ){
-          return "This field must not be empty";
+          return "Ce champ ne peut pas être vide";
         } else {
           return null;
         }
       },
       decoration: InputDecoration(
-        hintText: 'enter a small description...',
+        hintText: "Entrez une petite description de l'objet ...",
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         alignLabelWithHint: true,
         contentPadding: EdgeInsets.only(top: 10,right: 3, left: 10, bottom: 2),
@@ -507,7 +531,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       autofocus: false,
       controller: nameController,
       decoration: InputDecoration(
-        hintText: 'Your name',
+        hintText: 'Votre nom',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.person,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -516,7 +540,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       ),
       validator: (String value){
         if(value.isEmpty){
-          return "This field must not be empty";
+          return "Ce champ ne peut pas être vide";
         }else{
           return null;
         }
@@ -528,7 +552,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       autofocus: false,
       controller: phoneController,
       decoration: InputDecoration(
-        hintText: 'Your phone',
+        hintText: 'Votre numéro de tel',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.phone,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -537,7 +561,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       ),
       validator: (String value){
         if(value.isEmpty){
-          return "This field must not be empty";
+          return "Ce champ ne peut pas être vide";
         }else{
           return null;
         }
@@ -547,7 +571,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
     final founderImge = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text('Founder image'),
+        Text('Votre photo'),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -556,18 +580,17 @@ class CreateNewFoundState extends State<CreateNewFound>{
               borderRadius: new BorderRadius.circular(50.0),
               child: _image == null
                   ?
-              ClipRRect(borderRadius: new BorderRadius.circular(50),clipBehavior: Clip.antiAlias,child:  SpinKitRipple(color: Colors.pink,size: 80),)
+              ClipRRect(borderRadius: new BorderRadius.circular(50),clipBehavior: Clip.antiAlias, child: SpinKitRipple(color: Colors.pink,size: 80),)
                   :
-              _isLoadingImg
-                  ?
-              SpinKitHourGlass(color: Colors.deepPurple,size: 30)
-                  :
-              Image.network(
-                _image,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              ),
+              CachedNetworkImage(
+                  height: 80,
+                  width: 00,
+                  imageUrl: _image,
+                  fit: BoxFit.cover,
+                  repeat: ImageRepeat.noRepeat,
+                  placeholder: (context, url) => SpinKitFadingCircle(color: Colors.deepPurple,size: 70),
+                  errorWidget: (context, url, error) => new Icon(Icons.error,color: Colors.deepPurple,size: 35)
+              )
             ),
             Padding(
               padding: EdgeInsets.only(right: 0),
@@ -617,7 +640,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
         ?
     FloatingActionButton.extended(
       icon: Icon(Icons.public),
-      label: Text('publish'),
+      label: Text('Publier'),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10)
       ),
@@ -625,13 +648,13 @@ class CreateNewFoundState extends State<CreateNewFound>{
       heroTag: "publish button",
       onPressed: () {
 
-        objectName == 'Other...'
+        objectName == 'Autre...'
                               ?
                           objectName = otherObjectController.text
                               :
                           objectName = objectName;
 
-        townName == 'Other...'
+        townName == 'Autre...'
                               ?
                           townName = otherTownController.text
                               :
@@ -665,12 +688,12 @@ class CreateNewFoundState extends State<CreateNewFound>{
                   objectTitle,
                   SizedBox(height: 10.0),
                   objectNames,
-                  objectName == 'Other...'
+                  objectName == 'Autre...'
                       ?
                   SizedBox(height: 10.0)
                       :
                   SizedBox(height: 0.0),
-                  objectName == 'Other...'
+                  objectName == 'Autre...'
                       ?
                   otherObject
                       :
@@ -679,12 +702,12 @@ class CreateNewFoundState extends State<CreateNewFound>{
                   townTitle,
                   SizedBox(height: 10.0),
                   town,
-                  townName == 'Other...'
+                  townName == 'Autre...'
                       ?
                   SizedBox(height: 10.0)
                       :
                   SizedBox(height: 0.0),
-                  townName == 'Other...'
+                  townName == 'Autre...'
                       ?
                   otherTown
                       :
@@ -700,7 +723,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
                   SizedBox(height: 15.0),
                   imageList.length == 0
                                   ?
-                                  Text('Please, fill the whole form',textAlign: TextAlign.center,style: TextStyle(fontSize: 15,fontWeight: FontWeight.w500),)
+                                  Text('Veuillez remplir le formulaire en entier.',textAlign: TextAlign.center,style: TextStyle(fontSize: 15,fontWeight: FontWeight.w500),)
                                   :
                                   publish,
                   SizedBox(height: 25.0),
@@ -713,10 +736,12 @@ class CreateNewFoundState extends State<CreateNewFound>{
         onWillPop: (){
           Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => Home()
+              PageTransition(
+                  type: PageTransitionType.upToDown,
+                  child: Home()
               )
           );
+
         }
     );
   }
