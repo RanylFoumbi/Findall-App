@@ -116,7 +116,7 @@ class ArticleSearch extends SearchDelegate<ArticleSearch>{
                   Text("Aucun resultats",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: Colors.deepPurple`,
+                          color: Colors.deepPurple,
                           fontWeight: FontWeight.w500,
                           fontSize: 30
                       )
