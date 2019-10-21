@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:findall/view/Found/DetailPage.dart';
 import 'package:page_transition/page_transition.dart';
@@ -19,6 +18,25 @@ class ArticleSearch extends SearchDelegate<ArticleSearch>{
   List images;
   ArticleSearch(this.articles);
 
+  @override
+  // TODO: implement searchFieldLabel
+  String get searchFieldLabel => "Nom de l'objet ou la ville";
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    // TODO: implement appBarTheme
+    return ThemeData(
+      primaryColor: Colors.white,
+      textTheme: TextTheme(
+        body1: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+            fontSize: 17,
+            fontFamily: 'Raleway',
+        ),
+      ),
+    );
+  }
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -58,7 +76,7 @@ class ArticleSearch extends SearchDelegate<ArticleSearch>{
   Widget buildSuggestions(BuildContext context) {
     // TODO: implement buildSuggestions
 
-    final results = articles.where((res)=>res['objectName'].toLowerCase().contains(query.toLowerCase())).toList();
+    final results = articles.where((res)=>res['objectName'].toLowerCase().contains(query.toLowerCase()) || res['town'].toLowerCase().contains(query.toLowerCase())).toList();
 
     return query == ''
         ?

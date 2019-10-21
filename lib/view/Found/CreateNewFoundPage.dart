@@ -175,20 +175,17 @@ class CreateNewFoundState extends State<CreateNewFound>{
 
   uploadImage() async{
     var url;
-    List Urls = [];
     var uuid = new Uuid();
     var id = uuid.v4();
     for(var i=0; i<imageList.length; i++){
-      final StorageReference firebaseStorageRef =
-      FirebaseStorage.instance.ref().child("foundObjectImages/${id.toString()}.jpg");
+      final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child("foundObjectImages/${id.toString()}.jpg");
       final StorageUploadTask task = firebaseStorageRef.putFile(imageList[i]);
       var dowurl = await (await task.onComplete).ref.getDownloadURL();
       url = dowurl.toString();
-      Urls.add(url);
+      setState(() {
+        urlList.insert(i,url);
+      });
     }
-    setState(() {
-      urlList = Urls;
-    });
     print(urlList);
     return urlList;
   }
@@ -358,7 +355,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
                 });
               },
               value: objectName,
-              items: <String>[ "Carte national d'identité",'Téléphone portable', 'Passe port', 'Dilplômes','Relevé de note','Actes de naissance','Autre...' ]
+              items: <String>[ 'Actes de naissance',"Carte national d'identité", 'Dilplômes', 'Passe port','Relevé de note','Téléphone portable','Autre...' ]
                   .map((String value) {
                 return new DropdownMenuItem<String>(
                   value: value,
@@ -432,7 +429,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
             });
           },
           value: townName,
-          items: <String>["Yaoundé", 'Douala', 'Bertoua','Bamenda', 'Buéa', 'Bafoussam','Ngaoundéré', 'Maroua', 'Garoua','Ebolowa','Autre...']
+          items: <String>['Bafoussam','Bamenda', 'Bertoua', 'Buéa', 'Douala','Ebolowa', 'Garoua', 'Maroua', 'Ngaoundéré',"Yaoundé",'Autre...']
               .map((String value) {
             return new DropdownMenuItem<String>(
               value: value,
@@ -447,7 +444,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       keyboardType: TextInputType.text,
       autofocus: false,
       decoration: InputDecoration(
-        hintText: 'Autre ville',
+        hintText: 'Autre ville**',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(
             Icons.location_city,
@@ -474,7 +471,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
         }
       },
       decoration: InputDecoration(
-        hintText: 'Dans quel quartier?',
+        hintText: 'Dans quel quartier? **',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.home,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -497,7 +494,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
         }
       },
       decoration: InputDecoration(
-        hintText: "Entrez une petite description de l'objet ...",
+        hintText: "Entrez une petite description de l'objet ...**",
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         alignLabelWithHint: true,
         contentPadding: EdgeInsets.only(top: 10,right: 3, left: 10, bottom: 2),
@@ -514,7 +511,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
           Text("butoi",style: TextStyle(color: Colors.white))
               :
           imageList.length < 4 ?
-          IconButton(icon: Icon(Icons.add_circle_outline, color: Colors.pink,size: 30), onPressed: (){
+          IconButton(icon: Icon(Icons.file_upload, color: Colors.pink,size: 30), onPressed: (){
             Dialog(context);
           })
               :
@@ -531,7 +528,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       autofocus: false,
       controller: nameController,
       decoration: InputDecoration(
-        hintText: 'Votre nom',
+        hintText: 'Votre nom**',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.person,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -552,7 +549,7 @@ class CreateNewFoundState extends State<CreateNewFound>{
       autofocus: false,
       controller: phoneController,
       decoration: InputDecoration(
-        hintText: 'Votre numéro de tel',
+        hintText: 'Votre numéro de tel**',
         hintStyle: TextStyle(fontSize: 13,fontStyle: FontStyle.italic),
         prefixIcon: Icon(Icons.phone,color: Color(0xffdcdcdc)),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -681,9 +678,8 @@ class CreateNewFoundState extends State<CreateNewFound>{
               autovalidate: false,
               child: ListView(
                 shrinkWrap: true,
-                padding: EdgeInsets.only(left: 24.0, right: 24.0),
+                padding: EdgeInsets.only(left: 24.0, right: 24.0,bottom: 40),
                 children: <Widget>[
-
                   SizedBox(height: 20.0),
                   objectTitle,
                   SizedBox(height: 10.0),

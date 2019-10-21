@@ -42,8 +42,8 @@ class _FoundListState extends State<FoundList> {
 
   BannerAd createBannerAd() {
     return new BannerAd(
-      adUnitId: "ca-app-pub-8368969673764908/5658639726",
-//      adUnitId: BannerAd.testAdUnitId,
+//      adUnitId: "ca-app-pub-8368969673764908/5658639726",
+      adUnitId: BannerAd.testAdUnitId,
       targetingInfo: targetingInfo,
       size: AdSize.banner,
       listener: (MobileAdEvent event) {
@@ -348,7 +348,7 @@ class _FoundListState extends State<FoundList> {
               showSearch(
                   context: context,
                   delegate: ArticleSearch(foundList),
-                  query: ''
+                  query: '',
               );
             }
         )

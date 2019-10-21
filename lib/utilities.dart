@@ -1,5 +1,7 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
   Future<bool> checkInternet() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -12,6 +14,7 @@ import 'package:flutter/material.dart';
   }
 
   noInternet(context,msg){
+
     return showDialog(
         context: context,
         barrierDismissible: false,
@@ -51,3 +54,29 @@ import 'package:flutter/material.dart';
         }
     );
   }
+
+
+   photoView(context,image){
+    print(image);
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Container(
+              height: height,
+              width: width,
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+              child: PhotoView(
+                imageProvider: NetworkImage(image),
+                loadingChild: SpinKitWave(color: Colors.deepPurple,size: 50),
+              )
+          );
+        }
+    );
+  }
+

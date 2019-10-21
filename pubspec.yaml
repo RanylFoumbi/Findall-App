@@ -36,7 +36,7 @@ dependencies:
   firebase_core: ^0.4.0+9
   firebase_database: ^3.0.7
   country_code_picker: ^1.1.7
-  #  floating_search_bar: ^0.2.0
+  floating_search_bar: ^0.2.0
   localstorage: ^2.0.0
   cupertino_icons: ^0.1.2
   flutter_spinkit: ^4.0.0

@@ -9,6 +9,8 @@ import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 import 'package:page_transition/page_transition.dart';
 import 'package:photo_view/photo_view.dart';
 
+import '../../utilities.dart';
+
 class DetailPage extends StatelessWidget {
 
   int index;
@@ -60,13 +62,27 @@ class DetailPage extends StatelessWidget {
        SizedBox(width: width/2.4),
         Text('Trouvé par'+ ' ' ,  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 16)),
 
-        ClipRRect(
-          borderRadius: BorderRadius.circular(50),
+        Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.deepPurple,width: 0.5),
+              borderRadius: BorderRadius.circular(50),
+              color: Colors.white10,
+          ),
+          height: 50,
+          width: 50,
           child: this.profileImg == null
                                       ?
-          SpinKitRipple(color: Colors.pink,size: 70)
-          :
-          Image.network(this.profileImg,fit: BoxFit.cover,height: 50,width: 50)
+                                        Icon(Icons.person,size: 45, color: Colors.deepPurple)
+                                      :
+                                        GestureDetector(
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(50),
+                                            child: Image.network(this.profileImg,fit: BoxFit.cover,height: 50,width: 50),
+                                          ),
+                                          onTap: (){
+                                            photoView(context, this.profileImg);
+                                          },
+                                        )
           ,
         ),
       ],
@@ -92,16 +108,21 @@ class DetailPage extends StatelessWidget {
       child: new Swiper(
         itemWidth: height/1.5,
         itemBuilder: (BuildContext context,int index){
-          return ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child:CachedNetworkImage(
-                height: height/1.5,
-                imageUrl: this.images[index],
-                fit: BoxFit.cover,
-                repeat: ImageRepeat.noRepeat,
-                placeholder: (context, url) => SpinKitFadingCircle(color: Colors.deepPurple,size: 50),
-                errorWidget: (context, url, error) => new Icon(Icons.error,color: Colors.deepPurple,size: 35)
-              )
+          return GestureDetector(
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child:CachedNetworkImage(
+                    height: height/1.5,
+                    imageUrl: this.images[index],
+                    fit: BoxFit.cover,
+                    repeat: ImageRepeat.noRepeat,
+                    placeholder: (context, url) => SpinKitFadingCircle(color: Colors.deepPurple,size: 50),
+                    errorWidget: (context, url, error) => new Icon(Icons.error,color: Colors.deepPurple,size: 35)
+                )
+            ),
+            onTap: (){
+              photoView(context,this.images[index]);
+            },
           );
         },
         itemCount: this.images.length,
